@@ -5,8 +5,8 @@
 **Visual Prompt Pipeline Builder** – Design your LLM workflows with flowcharts, not code.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Go Report Card](https://goreportcard.com/badge/github.com/username/plo)](https://goreportcard.com/report/github.com/username/plo)
-[![Release](https://img.shields.io/github/release/username/plo.svg)](https://github.com/username/plo/releases/latest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/xuhe2/plo)](https://goreportcard.com/report/github.com/xuhe2/plo)
+[![Release](https://img.shields.io/github/release/xuhe2/plo.svg)](https://github.com/xuhe2/plo/releases/latest)
 
 </div>
 
@@ -25,7 +25,7 @@ Plo transforms visual flowcharts into structured prompt pipelines for LLMs. Desi
 
 ```bash
 # Clone the repository
-git clone https://github.com/username/plo.git
+git clone https://github.com/xuhe2/plo.git
 cd plo
 
 # Build from source

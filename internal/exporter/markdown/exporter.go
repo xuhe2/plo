@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"plo/internal/core"
-	"sort"
 	"text/template"
 )
 
@@ -15,10 +14,10 @@ const skillTemplate = `
 ## 第一部分：全局流程拓扑 (Workflow Topology)
 > [PROTOCOL]: 此部分仅用于确定逻辑流转，严禁在此执行具体指令。
 
-| 当前节点 ID | 节点名称 | 跳转条件 (Condition) | 下一个节点 (Target) |
+| 当前节点 ID | 节点内容 | 跳转条件 (Condition) | 下一个节点 (Target) |
 | :--- | :--- | :--- | :--- |
 {{- range .Flows}}
-| **{{.Label}}** | {{.Name}} | {{if .HasEdges}}{{range .Edges}} [IF] "{{.Condition}}" <br> {{end}}{{else}} - {{end}} | {{if .HasEdges}}{{range .Edges}} ➡️ **{{.TargetLabel}}** ({{.TargetName}}) <br> {{end}}{{else}} 🏁 END_OF_FLOW {{end}} |
+| **{{.Label}}** | {{.Content}} | {{if .HasEdges}}{{range .Edges}} [IF] "{{.Condition}}" <br> {{end}}{{else}} - {{end}} | {{if .HasEdges}}{{range .Edges}} ➡️ **{{.TargetLabel}}** <br> {{end}}{{else}} 🏁 END_OF_FLOW {{end}} |
 {{- end}}
 
 ---
@@ -27,11 +26,11 @@ const skillTemplate = `
 > [PROTOCOL]: 确定当前节点后，请严格执行以下 [INSTRUCTION] 内容。
 
 {{range .Details}}
-### 📍 {{.Label}} | {{.Name}}
+### 📍 {{.Label}}
 
 **[INSTRUCTION]**
 """
-{{if .Prompt}}{{.Prompt}}{{else}}(此节点无特定指令，请直接进行逻辑流转){{end}}
+{{if .Content}}{{.Content}}{{else}}(此节点无特定指令，请直接进行逻辑流转){{end}}
 """
 
 **[CONTEXT/DATA]**
@@ -43,7 +42,7 @@ const skillTemplate = `
 
 type FlowNode struct {
 	Label    string
-	Name     string
+	Content  string
 	HasEdges bool
 	Edges    []EdgeInfo
 }
@@ -51,13 +50,10 @@ type FlowNode struct {
 type EdgeInfo struct {
 	Condition   string
 	TargetLabel string
-	TargetName  string
 }
 
 type NodeDetail struct {
 	Label   string
-	Name    string
-	Prompt  string
 	Content string
 }
 
@@ -68,14 +64,31 @@ func NewExporter() *Exporter {
 }
 
 func (e *Exporter) Export(p *core.Pipeline) ([]byte, error) {
-	// 1. 对节点进行排序，保证 Node00X 编号的稳定性
-	nodes := make([]*core.Node, 0, len(p.Nodes))
-	for _, n := range p.Nodes {
-		nodes = append(nodes, n)
+	// 1. 从 StartNode 开始使用 BFS 遍历，保证拓扑顺序
+	startNode := p.GetStartNode()
+	if startNode == nil {
+		return nil, fmt.Errorf("no start node found in pipeline")
 	}
-	sort.Slice(nodes, func(i, j int) bool {
-		return nodes[i].ID < nodes[j].ID
-	})
+
+	visited := make(map[string]bool)
+	queue := []*core.Node{startNode}
+	visited[startNode.ID] = true
+	var nodes []*core.Node
+
+	for len(queue) > 0 {
+		node := queue[0]
+		queue = queue[1:]
+		nodes = append(nodes, node)
+
+		// 按顺序遍历出边，添加未访问的目标节点
+		for _, edge := range node.OutEdges {
+			target := p.GetNode(edge.TargetID)
+			if !visited[target.ID] {
+				visited[target.ID] = true
+				queue = append(queue, target)
+			}
+		}
+	}
 
 	// 2. 建立 ID 到 NodeXXX 的映射
 	idToLabel := make(map[string]string)
@@ -92,7 +105,7 @@ func (e *Exporter) Export(p *core.Pipeline) ([]byte, error) {
 		outEdges := p.GetOutEdges(node.ID)
 		fn := FlowNode{
 			Label:    idToLabel[node.ID],
-			Name:     node.Name,
+			Content:  node.Content,
 			HasEdges: len(outEdges) > 0,
 		}
 		for _, edge := range outEdges {
@@ -104,7 +117,6 @@ func (e *Exporter) Export(p *core.Pipeline) ([]byte, error) {
 			fn.Edges = append(fn.Edges, EdgeInfo{
 				Condition:   cond,
 				TargetLabel: idToLabel[target.ID],
-				TargetName:  target.Name,
 			})
 		}
 		flowData = append(flowData, fn)
@@ -112,8 +124,6 @@ func (e *Exporter) Export(p *core.Pipeline) ([]byte, error) {
 		// 构造第二部分：执行细节
 		detailData = append(detailData, NodeDetail{
 			Label:   idToLabel[node.ID],
-			Name:    node.Name,
-			Prompt:  node.Prompt,
 			Content: node.Content,
 		})
 	}

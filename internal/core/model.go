@@ -5,8 +5,6 @@ import "fmt"
 // Node 表示流程图中的一个节点
 type Node struct {
 	ID      string
-	Name    string
-	Prompt  string
 	Content string
 
 	InEdges  []*Edge

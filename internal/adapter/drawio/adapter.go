@@ -34,8 +34,8 @@ func (a *Adapter) Parse(data []byte) (*core.Pipeline, error) {
 	}
 
 	// 第一遍：识别边并收集边的标签
-	edgesByID := make(map[string]*MxCell)      // 边 ID -> 边 cell
-	edgeLabels := make(map[string]string)       // 边 ID -> 标签文本
+	edgesByID := make(map[string]*MxCell) // 边 ID -> 边 cell
+	edgeLabels := make(map[string]string) // 边 ID -> 标签文本
 
 	for _, cell := range cells {
 		if cell.IsEdge() {
@@ -83,9 +83,9 @@ func (a *Adapter) Parse(data []byte) (*core.Pipeline, error) {
 			}
 
 			info := &nodeInfo{
-				id:   cell.ID,
-				name: decodeValue(cell.Value),
-				cell: cell,
+				id:      cell.ID,
+				content: decodeValue(cell.Value),
+				cell:    cell,
 			}
 			if cell.Geometry != nil {
 				info.x, _ = parseFloat(cell.Geometry.X)
@@ -112,9 +112,7 @@ func (a *Adapter) Parse(data []byte) (*core.Pipeline, error) {
 	for _, info := range nodes {
 		node := &core.Node{
 			ID:      info.id,
-			Name:    info.name,
-			Prompt:  info.name,
-			Content: info.name,
+			Content: info.content,
 			IsStart: info == startNode,
 		}
 		pipeline.AddNode(node)
@@ -160,11 +158,11 @@ func (a *Adapter) findRootCells(cells map[string]*MxCell) []*MxCell {
 
 // nodeInfo 用于存储节点的临时信息
 type nodeInfo struct {
-	id   string
-	name string
-	x    float64
-	y    float64
-	cell *MxCell
+	id      string
+	content string
+	x       float64
+	y       float64
+	cell    *MxCell
 }
 
 // decodeValue 解码 HTML 实体并清理字符串

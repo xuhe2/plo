@@ -8,6 +8,8 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/xuhe2/plo)](https://goreportcard.com/report/github.com/xuhe2/plo)
 [![Release](https://img.shields.io/github/release/xuhe2/plo.svg)](https://github.com/xuhe2/plo/releases/latest)
 
+English | [中文](./README_CN.md)
+
 </div>
 
 ## 🚀 What is Plo?
@@ -75,15 +77,25 @@ Plo is built with an extensible architecture that allows you to add:
 ### Output: Structured Pipeline
 
 ```markdown
-# Prompt Pipeline
+# 🛠 提示词流水线执行技能 (Skill: Plo-Pipeline)
 
-## Workflow Topology
+## 第一部分：全局流程拓扑 (Workflow Topology)
+> [PROTOCOL]: 此部分仅用于确定逻辑流转，严禁在此执行具体指令。
 
-| Node ID | Name          | Condition | Next Node |
-|---------|---------------|-----------|-----------|
-| Node001 | Analyze Request | - | Node002 |
-| Node002 | Has Data?     | Yes       | Node003   |
-| Node002 | Has Data?     | No        | Node004   |
+| 当前节点 ID | 节点摘要 | 跳转条件 (Condition) | 下一个节点 (Target) |
+| :--- | :--- | :--- | :--- |
+| **Node001** | 检查我的本地文件夹(仓库) | [IF] "DEFAULT" | ➡️ **Node002** |
+| **Node002** | 是否有文件 | [IF] "否" <br> [IF] "是" | ➡️ **Node003** <br> ➡️ **Node004** |
+
+## 第二部分：节点指令详情 (Node Specifications)
+> [PROTOCOL]: 确定当前节点后，请严格执行以下 [INSTRUCTION] 内容。
+
+### 📍 Node001
+
+**[INSTRUCTION]**
+"""
+检查我的本地文件夹(仓库)
+"""
 ```
 
 Check out the [examples/example.drawio](./examples/example.drawio) and [examples/output.md](./examples/output.md) for a complete example.

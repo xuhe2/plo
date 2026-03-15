@@ -77,15 +77,25 @@ Plo 采用可扩展架构，允许你添加：
 ### 输出：结构化流水线
 
 ```markdown
-# 提示词流水线
+# 🛠 提示词流水线执行技能 (Skill: Plo-Pipeline)
 
-## 工作流拓扑
+## 第一部分：全局流程拓扑 (Workflow Topology)
+> [PROTOCOL]: 此部分仅用于确定逻辑流转，严禁在此执行具体指令。
 
-| 节点 ID | 名称          | 条件     | 下一节点 |
-|---------|---------------|----------|----------|
-| Node001 | 分析请求      | -        | Node002  |
-| Node002 | 有数据吗?     | 是       | Node003  |
-| Node002 | 有数据吗?     | 否       | Node004  |
+| 当前节点 ID | 节点摘要 | 跳转条件 (Condition) | 下一个节点 (Target) |
+| :--- | :--- | :--- | :--- |
+| **Node001** | 检查我的本地文件夹(仓库) | [IF] "DEFAULT" | ➡️ **Node002** |
+| **Node002** | 是否有文件 | [IF] "否" <br> [IF] "是" | ➡️ **Node003** <br> ➡️ **Node004** |
+
+## 第二部分：节点指令详情 (Node Specifications)
+> [PROTOCOL]: 确定当前节点后，请严格执行以下 [INSTRUCTION] 内容。
+
+### 📍 Node001
+
+**[INSTRUCTION]**
+"""
+检查我的本地文件夹(仓库)
+"""
 ```
 
 查看 [examples/example.drawio](./examples/example.drawio) 和 [examples/output.md](./examples/output.md) 获取完整示例。

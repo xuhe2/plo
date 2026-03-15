@@ -37,7 +37,10 @@ make build
 ### 使用
 
 ```bash
-# 将 Draw.io 流程图转换为 Markdown
+# 尝试示例
+plo -input examples/example.drawio -output examples/output.md
+
+# 将你自己的 Draw.io 流程图转换为 Markdown
 plo -input your-workflow.drawio -output pipeline.md
 
 # 或输出到标准输出
@@ -85,7 +88,7 @@ Plo 采用可扩展架构，允许你添加：
 | Node002 | 有数据吗?     | 否       | Node004  |
 ```
 
-查看 [example.drawio](./example.drawio) 和 [output.md](./output.md) 获取完整示例。
+查看 [examples/example.drawio](./examples/example.drawio) 和 [examples/output.md](./examples/output.md) 获取完整示例。
 
 ## 🔌 扩展 Plo
 

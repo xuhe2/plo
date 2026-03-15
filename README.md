@@ -35,7 +35,10 @@ make build
 ### Usage
 
 ```bash
-# Convert a Draw.io flowchart to Markdown
+# Try the example
+plo -input examples/example.drawio -output examples/output.md
+
+# Convert your own Draw.io flowchart to Markdown
 plo -input your-workflow.drawio -output pipeline.md
 
 # Or output to stdout
@@ -83,7 +86,7 @@ Plo is built with an extensible architecture that allows you to add:
 | Node002 | Has Data?     | No        | Node004   |
 ```
 
-Check out the [example.drawio](./example.drawio) and [output.md](./output.md) for a complete example.
+Check out the [examples/example.drawio](./examples/example.drawio) and [examples/output.md](./examples/output.md) for a complete example.
 
 ## 🔌 Extending Plo
 

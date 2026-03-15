@@ -5,10 +5,10 @@ build:
 	go build -o bin/plo main.go
 
 run:
-	go run main.go -input example.drawio -output output.md
+	go run main.go -input examples/example.drawio -output examples/output.md
 
 test:
 	go test ./...
 
 clean:
-	rm -rf bin output.md
+	rm -rf bin examples/output.md

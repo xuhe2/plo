@@ -14,10 +14,10 @@ const skillTemplate = `
 ## 第一部分：全局流程拓扑 (Workflow Topology)
 > [PROTOCOL]: 此部分仅用于确定逻辑流转，严禁在此执行具体指令。
 
-| 当前节点 ID | 节点内容 | 跳转条件 (Condition) | 下一个节点 (Target) |
+| 当前节点 ID | 节点摘要 | 跳转条件 (Condition) | 下一个节点 (Target) |
 | :--- | :--- | :--- | :--- |
 {{- range .Flows}}
-| **{{.Label}}** | {{.Content}} | {{if .HasEdges}}{{range .Edges}} [IF] "{{.Condition}}" <br> {{end}}{{else}} - {{end}} | {{if .HasEdges}}{{range .Edges}} ➡️ **{{.TargetLabel}}** <br> {{end}}{{else}} 🏁 END_OF_FLOW {{end}} |
+| **{{.Label}}** | {{.ShortContent}} | {{if .HasEdges}}{{range .Edges}} [IF] "{{.Condition}}" <br> {{end}}{{else}} - {{end}} | {{if .HasEdges}}{{range .Edges}} ➡️ **{{.TargetLabel}}** <br> {{end}}{{else}} 🏁 END_OF_FLOW {{end}} |
 {{- end}}
 
 ---
@@ -33,18 +33,15 @@ const skillTemplate = `
 {{if .Content}}{{.Content}}{{else}}(此节点无特定指令，请直接进行逻辑流转){{end}}
 """
 
-**[CONTEXT/DATA]**
-> {{if .Content}}{{.Content}}{{else}}无额外上下文{{end}}
-
 ---
 {{end}}
 `
 
 type FlowNode struct {
-	Label    string
-	Content  string
-	HasEdges bool
-	Edges    []EdgeInfo
+	Label        string
+	ShortContent string
+	HasEdges     bool
+	Edges        []EdgeInfo
 }
 
 type EdgeInfo struct {
@@ -104,9 +101,9 @@ func (e *Exporter) Export(p *core.Pipeline) ([]byte, error) {
 		// 构造第一部分：纯净拓扑
 		outEdges := p.GetOutEdges(node.ID)
 		fn := FlowNode{
-			Label:    idToLabel[node.ID],
-			Content:  node.Content,
-			HasEdges: len(outEdges) > 0,
+			Label:        idToLabel[node.ID],
+			ShortContent: truncateContent(node.Content, 30),
+			HasEdges:     len(outEdges) > 0,
 		}
 		for _, edge := range outEdges {
 			target := p.GetNode(edge.TargetID)
@@ -145,4 +142,17 @@ func (e *Exporter) Export(p *core.Pipeline) ([]byte, error) {
 	var buf bytes.Buffer
 	err = tmpl.Execute(&buf, data)
 	return buf.Bytes(), err
+}
+
+// truncateContent 截取内容，最多 maxChars 个字符，超出时添加 "..."
+func truncateContent(content string, maxChars int) string {
+	if content == "" {
+		return "(无内容)"
+	}
+	// 转换为 []rune 以正确处理中文字符
+	runes := []rune(content)
+	if len(runes) <= maxChars {
+		return content
+	}
+	return string(runes[:maxChars]) + "..."
 }
